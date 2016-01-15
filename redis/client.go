@@ -246,3 +246,31 @@ func messageToReply(m *resp.Message) (*Reply, error) {
 	return r, nil
 
 }
+
+func NewClient(conn net.Conn) *Client {
+	c := new(Client)
+	c.Conn = conn
+	c.reader = bufio.NewReaderSize(conn, bufSize)
+	return c
+}
+
+func (this *Client) WriteByte(data []byte) {
+	c.setWriteTimeout()
+	_, err := this.Conn.Write(data)
+	if err != nil {
+		c.Close()
+		return err
+	}
+}
+
+func ParseReply(reader *bytes.Buffer) *Reply {
+	m, err := resp.BufferReadMessage(reader)
+	if err != nil {
+		return &Reply{Type: ErrorReply, Err: err}
+	}
+	r, err := messageToReply(m)
+	if err != nil {
+		return &Reply{Type: ErrorReply, Err: err}
+	}
+	return r
+}
