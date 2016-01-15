@@ -2,7 +2,6 @@ package redis
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"net"
 	"strings"
