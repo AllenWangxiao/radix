@@ -2,12 +2,13 @@ package redis
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"net"
 	"strings"
 	"time"
 
-	"github.com/fzzy/radix/redis/resp"
+	"github.com/ivanabc/radix/redis/resp"
 )
 
 const (
@@ -254,13 +255,14 @@ func NewClient(conn net.Conn) *Client {
 	return c
 }
 
-func (this *Client) WriteByte(data []byte) {
-	c.setWriteTimeout()
+func (this *Client) WriteByte(data []byte) error {
+	this.setWriteTimeout()
 	_, err := this.Conn.Write(data)
 	if err != nil {
-		c.Close()
+		this.Close()
 		return err
 	}
+	return nil
 }
 
 func ParseReply(reader *bytes.Buffer) *Reply {
