@@ -264,15 +264,3 @@ func (this *Client) WriteByte(data []byte) error {
 	}
 	return nil
 }
-
-func ParseReply(reader *bytes.Buffer) *Reply {
-	m, err := resp.BufferReadMessage(reader)
-	if err != nil {
-		return &Reply{Type: ErrorReply, Err: err}
-	}
-	r, err := messageToReply(m)
-	if err != nil {
-		return &Reply{Type: ErrorReply, Err: err}
-	}
-	return r
-}
