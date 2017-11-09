@@ -4,8 +4,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/fzzy/radix/extra/pubsub"
-	"github.com/fzzy/radix/redis"
+	"github.com/ivanabc/radix/redis"
 	"os"
 	"time"
 )
@@ -95,28 +94,4 @@ func main() {
 	s, err = r.Str()
 	errHndlr(err)
 	fmt.Println("multikey:", s)
-
-	//* Publish/Subscribe
-
-	// Subscribe
-	c2, err := redis.Dial("tcp", "localhost:6379")
-	errHndlr(err)
-	defer c2.Close()
-	psc := pubsub.NewSubClient(c2)
-	psr := psc.Subscribe("queue1", "queue2")
-
-	// Publish
-	c.Cmd("publish", "queue1", "ohai")
-
-	// Receive publish
-	psr = psc.Receive() //Blocks until reply is received or timeout is tripped
-	if !psr.Timeout() {
-		fmt.Println("publish:", psr.Message)
-	} else {
-		fmt.Println("error: sub timedout")
-		return
-	}
-
-	// Unsubscribe
-	psc.Unsubscribe("queue1", "queue2") //Unsubscribe before issuing any other commands with c
 }

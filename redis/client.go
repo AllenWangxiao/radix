@@ -25,12 +25,13 @@ var PipelineQueueEmptyError error = errors.New("pipeline queue empty")
 type Client struct {
 	// The connection the client talks to redis over. Don't touch this unless
 	// you know what you're doing.
-	Conn      net.Conn
-	timeout   time.Duration
-	reader    *bufio.Reader
-	pending   []*request
-	completed []*Reply
-	writeBuf  []byte
+	Conn        net.Conn
+	timeout     time.Duration
+	reader      *bufio.Reader
+	pending     []*request
+	lastPending []*request
+	completed   []*Reply
+	writeBuf    []byte
 }
 
 // request describes a client's request to the redis server
@@ -100,6 +101,7 @@ func (c *Client) GetReply() *Reply {
 
 	nreqs := len(c.pending)
 	err := c.writeRequest(c.pending...)
+	c.lastPending = c.pending
 	c.pending = nil
 	if err != nil {
 		return &Reply{Type: ErrorReply, Err: err}
@@ -262,4 +264,12 @@ func (this *Client) WriteByte(data []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (this *Client) GetLastPendingByIndex(index int) (string, []interface{}, bool) {
+	if index >= len(this.lastPending) {
+		return "", nil, false
+	}
+	req := this.lastPending[index]
+	return req.cmd, req.args, true
 }
